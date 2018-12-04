@@ -1,0 +1,71 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "Demo ec2 instance creation",
+ 
+	"Resources": {
+		"MyInstance1" : {
+			 "Type" : "AWS::EC2::Instance",
+			 "Properties" : {
+				 "AvailabilityZone" : "us-west-1a",
+				 "ImageId" : "ami-011b6930a81cd6aaf",
+				 "InstanceType" : "t2.micro",
+				 "KeyName" : "aws", 
+				 "SecurityGroups" : [ "key" ]
+                                 
+             }
+        },
+		"MyInstance2" : {
+			 "Type" : "AWS::EC2::Instance",
+			 "Properties" : {
+				 "AvailabilityZone" : "us-west-1b",
+				 "ImageId" : "ami-011b6930a81cd6aaf",
+				 "InstanceType" : "t2.micro",
+				 "KeyName" : "aws",
+				 "SecurityGroups" : [ "key" ]
+                                 
+               }
+            },
+            "ElasticLoadBalancer": {
+          "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+          "Properties": {
+            "AvailabilityZones": [ "us-west-1a", "us-west-1b"],
+			"Instances" : [ {"Ref" : "MyInstance1"}, {"Ref":"MyInstance2"} ],
+            "Listeners": [{
+              "LoadBalancerPort": "80",
+              "InstancePort": "80",
+              "Protocol": "HTTP"
+            }],
+            "HealthCheck": {
+              "Target": "HTTP:80/",
+              "HealthyThreshold": "3",
+              "UnhealthyThreshold": "5",
+              "Interval": "30",
+              "Timeout": "5"
+           }
+        }
+
+        },
+        "MyDB" : {
+           "Type" : "AWS::RDS::DBInstance",
+           "Properties" : {
+		      "AvailabilityZone" : "us-west-1b",
+              "DBName" : "phpdb1",
+              "AllocatedStorage" : "5",
+              "DBInstanceClass" : "db.t2.micro",
+              "Engine" : "MariaDB",
+              "EngineVersion" : "10.0.24",
+              "MasterUsername" : "admin",
+              "MasterUserPassword" : "123456789",
+              "Tags" : [ { "Key" : "Name", "Value" : "My SQL Database" } ]
+           },
+           "DeletionPolicy" : "Snapshot"
+
+      } 
+     }
+    }
+
+
+
+
+
+
