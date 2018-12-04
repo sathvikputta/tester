@@ -1,0 +1,103 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "Demo ec2 instance creation",
+ 
+    "Parameters": {
+		"Environment": {
+			"Type"		: "String",
+			"Description" : "Select the environment these instances shoud be launched.",
+			"Default"	 : "qat",
+			"AllowedPattern" : "[a-zA-Z][a-zA-Z]*", 
+			"AllowedValues" : [
+				"qat",
+     			"prd"
+			],	
+			"ConstraintDescription" : "QAT,PRD" 
+		}
+    },
+
+       "Conditions" : {
+		"QATEnvironment"	: 	{ "Fn::Equals" : [ { "Ref" : "Environment" }, "qat" ] },
+		"PRDEnvironment"	: 	{ "Fn::Equals" : [ { "Ref" : "Environment" }, "prd" ] }
+    },
+	"Resources": {
+		"MyInstance1" : {
+			 "Type" : "AWS::EC2::Instance",
+             "Condition" : "QATEnvironment", 
+			 "Properties" : {
+				 "AvailabilityZone" : "us-west-1a",
+				 "ImageId" : "ami-011b6930a81cd6aaf",
+				 "InstanceType" : "t2.micro",
+				 "KeyName" : "aws", 
+				 "SecurityGroups" : [ "key" ]
+                                 
+             }
+        },
+		"MyInstance2" : {
+			 "Type" : "AWS::EC2::Instance",
+             "Condition" : "PRDEnvironment",
+			 "Properties" : {
+				 "AvailabilityZone" : "us-west-1a",
+				 "ImageId" : "ami-011b6930a81cd6aaf",
+				 "InstanceType" : "t2.micro",
+				 "KeyName" : "aws",
+				 "SecurityGroups" : [ "key" ]
+                }
+           },
+     
+
+
+                 "MyInstance3" : {
+			 "Type" : "AWS::EC2::Instance",
+             "Condition" : "PRDEnvironment",
+			 "Properties" : {
+				 "AvailabilityZone" : "us-west-1a",
+				 "ImageId" : "ami-011b6930a81cd6aaf",
+				 "InstanceType" : "t2.micro",
+				 "KeyName" : "aws",
+				 "SecurityGroups" : [ "key" ]
+                                 
+               }
+            },
+            "ElasticLoadBalancer": {
+          "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+          "Condition" : "PRDEnvironment",
+          "Properties": {
+            "AvailabilityZones": [ "us-west-1a", "us-west-1b"],
+			"Instances" : [ {"Ref" : "MyInstance2"}, {"Ref":"MyInstance3"} ],
+            "Listeners": [{
+              "LoadBalancerPort": "80",
+              "InstancePort": "80",
+              "Protocol": "HTTP"
+            }],
+            "HealthCheck": {
+              "Target": "HTTP:80/",
+              "HealthyThreshold": "3",
+              "UnhealthyThreshold": "5",
+              "Interval": "30",
+              "Timeout": "5"
+           }
+           }
+
+        },
+        "MyDB" : {
+           "Type" : "AWS::RDS::DBInstance",
+           "Condition" : "PRDEnvironment",
+           "Properties" : {
+		      "AvailabilityZone" : "us-west-1b",
+              "DBName" : "phpdb1",
+              "AllocatedStorage" : "5",
+              "DBInstanceClass" : "db.t2.micro",
+              "Engine" : "MariaDB",
+              "EngineVersion" : "10.0.24",
+              "MasterUsername" : "admin",
+              "MasterUserPassword" : "123456789",
+              "Tags" : [ { "Key" : "Name", "Value" : "My SQL Database" } ]
+           },
+           "DeletionPolicy" : "Snapshot"
+
+      } 
+     }
+
+}
+
