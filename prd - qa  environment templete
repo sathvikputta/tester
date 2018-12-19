@@ -9,8 +9,7 @@
 			"Default"	 : "qat",
 			"AllowedPattern" : "[a-zA-Z][a-zA-Z]*", 
 			"AllowedValues" : [
-				"qat",
-     			"prd"
+				"qat", "prd"
 			],	
 			"ConstraintDescription" : "QAT,PRD" 
 		}
@@ -25,11 +24,11 @@
 			 "Type" : "AWS::EC2::Instance",
              "Condition" : "QATEnvironment", 
 			 "Properties" : {
-				 "AvailabilityZone" : "us-west-1a",
-				 "ImageId" : "ami-011b6930a81cd6aaf",
+				 "AvailabilityZone" : "us-east-1",
+				 "ImageId" : "ami-009d6802948d06e52",
 				 "InstanceType" : "t2.micro",
-				 "KeyName" : "aws", 
-				 "SecurityGroups" : [ "key" ]
+				 "KeyName" : "MyKeyPair", 
+				 "SecurityGroups" : [ "MySG" ]
                                  
              }
         },
@@ -37,11 +36,11 @@
 			 "Type" : "AWS::EC2::Instance",
              "Condition" : "PRDEnvironment",
 			 "Properties" : {
-				 "AvailabilityZone" : "us-west-1a",
-				 "ImageId" : "ami-011b6930a81cd6aaf",
+				 "AvailabilityZone" : "us-east-1",
+				 "ImageId" : "ami-009d6802948d06e52",
 				 "InstanceType" : "t2.micro",
-				 "KeyName" : "aws",
-				 "SecurityGroups" : [ "key" ]
+				 "KeyName" : "MyKeyPair",
+				 "SecurityGroups" : [ "MySG" ]
                 }
            },
      
@@ -51,11 +50,11 @@
 			 "Type" : "AWS::EC2::Instance",
              "Condition" : "PRDEnvironment",
 			 "Properties" : {
-				 "AvailabilityZone" : "us-west-1a",
-				 "ImageId" : "ami-011b6930a81cd6aaf",
+				 "AvailabilityZone" : "us-east-1",
+				 "ImageId" : "ami-009d6802948d06e52",
 				 "InstanceType" : "t2.micro",
-				 "KeyName" : "aws",
-				 "SecurityGroups" : [ "key" ]
+				 "KeyName" : "MyKeyPair",
+				 "SecurityGroups" : [ "MySG" ]
                                  
                }
             },
@@ -63,7 +62,7 @@
           "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
           "Condition" : "PRDEnvironment",
           "Properties": {
-            "AvailabilityZones": [ "us-west-1a", "us-west-1b"],
+            "AvailabilityZones": [ "us-east-1", "us-east-1"],
 			"Instances" : [ {"Ref" : "MyInstance2"}, {"Ref":"MyInstance3"} ],
             "Listeners": [{
               "LoadBalancerPort": "80",
@@ -84,7 +83,7 @@
            "Type" : "AWS::RDS::DBInstance",
            "Condition" : "PRDEnvironment",
            "Properties" : {
-		      "AvailabilityZone" : "us-west-1b",
+		      "AvailabilityZone" : "us-east-1c",
               "DBName" : "phpdb1",
               "AllocatedStorage" : "5",
               "DBInstanceClass" : "db.t2.micro",
@@ -92,7 +91,7 @@
               "EngineVersion" : "10.0.24",
               "MasterUsername" : "admin",
               "MasterUserPassword" : "123456789",
-              "Tags" : [ { "Key" : "Name", "Value" : "My SQL Database" } ]
+              "Tags" : [ { "Key" : "Name", "Value" : "MySQLDatabase" } ]
            },
            "DeletionPolicy" : "Snapshot"
 
@@ -100,4 +99,3 @@
      }
 
 }
-
